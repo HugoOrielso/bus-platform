@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── AUTH ────────────────────────────────────────────────
+model User {
+  id           String    @id @default(uuid())
+  nombre       String
+  email        String    @unique
+  password     String
+  rol          Rol       @default(OPERADOR)
+  activo       Boolean   @default(true)
+  refreshTokens RefreshToken[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("refresh_tokens")
+}
+
+enum Rol {
+  ADMIN
+  OPERADOR
+  SUPERVISOR
+}
+
+// ─── BUSES ───────────────────────────────────────────────
+model Bus {
+  id        String   @id @default(uuid())
+  placa     String   @unique
+  nombre    String
+  capacidad Int
+  activo    Boolean  @default(true)
+  rutaId    String?
+  ruta      Ruta?    @relation(fields: [rutaId], references: [id])
+  viajes    Viaje[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("buses")
+}
+
+model Ruta {
+  id        String   @id @default(uuid())
+  nombre    String
+  origen    String
+  destino   String
+  activa    Boolean  @default(true)
+  buses     Bus[]
+  viajes    Viaje[]
+  createdAt DateTime @default(now())
+
+  @@map("rutas")
+}
+
+// ─── VIAJES & CONTEOS ────────────────────────────────────
+model Viaje {
+  id              String      @id @default(uuid())
+  busId           String
+  bus             Bus         @relation(fields: [busId], references: [id])
+  rutaId          String
+  ruta            Ruta        @relation(fields: [rutaId], references: [id])
+  estado          EstadoViaje @default(EN_CURSO)
+  fechaInicio     DateTime    @default(now())
+  fechaFin        DateTime?
+  totalSubidas    Int         @default(0)
+  totalBajadas    Int         @default(0)
+  pasajerosActual Int         @default(0)
+  conteos         Conteo[]
+  createdAt       DateTime    @default(now())
+
+  @@map("viajes")
+}
+
+model Conteo {
+  id         String       @id @default(uuid())
+  viajeId    String
+  viaje      Viaje        @relation(fields: [viajeId], references: [id])
+  tipo       TipoConteo
+  fuente     FuenteConteo @default(CAMARA)
+  confianza  Float?
+  timestamp  DateTime     @default(now())
+
+  @@map("conteos")
+}
+
+enum EstadoViaje {
+  EN_CURSO
+  FINALIZADO
+  CANCELADO
+}
+
+enum TipoConteo {
+  SUBIDA
+  BAJADA
+}
+
+enum FuenteConteo {
+  CAMARA
+  KINECT
+  MANUAL
+}

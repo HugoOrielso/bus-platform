@@ -1,0 +1,7 @@
+fastapi==0.111.0
+uvicorn==0.29.0
+opencv-python==4.9.0.80
+psycopg[binary]
+sqlalchemy==2.0.30
+python-dotenv==1.0.1
+imutils==0.5.4
