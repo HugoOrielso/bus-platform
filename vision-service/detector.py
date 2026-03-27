@@ -54,6 +54,7 @@ class DetectorPersonas:
         )
         scale = frame.shape[1] / frame_small.shape[1]
         rects_scaled = []
+        #guía 2 y guía 4 (ints)
         for (x, y, w, h) in rects:
             rects_scaled.append((
                 int(x * scale),
@@ -64,6 +65,7 @@ class DetectorPersonas:
         return len(rects_scaled), rects_scaled
 
     def _dibujar_frame(self, frame):
+        #guía 2
         for (x, y, w, h) in self._rects:
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
             cv2.putText(frame, "Persona", (x, y - 8),
@@ -78,13 +80,17 @@ class DetectorPersonas:
         return frame
 
     def _loop(self):
+        #guía 4
         frame_count = 0
+        #guía 2
         while self.corriendo:
             ret, frame = self.cap.read()
+            #guía 3
             if not ret:
                 time.sleep(0.1)
                 continue
             frame_count += 1
+            #guía 3
             if frame_count % DETECTION_INTERVAL == 0:
                 cantidad, rects = self._detectar_personas(frame)
                 self._rects = rects
