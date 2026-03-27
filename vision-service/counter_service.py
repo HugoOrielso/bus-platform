@@ -16,15 +16,18 @@ RUTA_ID = os.getenv("RUTA_ID")
 
 
 def obtener_o_crear_ruta(db: Session) -> Ruta:
+    #guía 3
     if RUTA_ID:
         ruta = db.query(Ruta).filter_by(id=RUTA_ID).first()
         if ruta:
             return ruta
 
+    #guía 1
     ruta = db.query(Ruta).filter_by(activa=True).first()
     if ruta:
         return ruta
 
+    #guía 1
     ruta = Ruta(
         id      = str(uuid.uuid4()),
         nombre  = "Ruta Principal",
@@ -40,15 +43,17 @@ def obtener_o_crear_ruta(db: Session) -> Ruta:
 
 
 def obtener_o_crear_bus(db: Session, ruta: Ruta) -> Bus:
+    #guía 3
     if BUS_ID:
         bus = db.query(Bus).filter_by(id=BUS_ID).first()
         if bus:
             return bus
 
     bus = db.query(Bus).filter_by(activo=True).first()
+    #guía 3
     if bus:
         return bus
-
+    # guía 1
     now = datetime.now()
     bus = Bus(
         id        = str(uuid.uuid4()),
@@ -96,7 +101,7 @@ def registrar_evento(db: Session, evento: str, personas_actual: int, confianza: 
     bus   = obtener_o_crear_bus(db, ruta)
     viaje = obtener_viaje_activo(db, bus.id)
 
-    if not viaje:
+    if not viaje:  ##Guía 3
         viaje = iniciar_viaje(db, bus, ruta)
 
     tipo = "SUBIDA" if evento == "subio" else "BAJADA"
@@ -110,6 +115,7 @@ def registrar_evento(db: Session, evento: str, personas_actual: int, confianza: 
     )
     db.add(conteo)
 
+    #guía 3
     if tipo == "SUBIDA":
         viaje.totalSubidas += 1
     else:
@@ -125,6 +131,7 @@ def obtener_conteo_actual(db: Session) -> dict:
     bus   = obtener_o_crear_bus(db, ruta)
     viaje = obtener_viaje_activo(db, bus.id)
 
+    # uso de diccionario guía 5 y guía 3
     if not viaje:
         return {
             "bus_id":             bus.id,
@@ -135,7 +142,7 @@ def obtener_conteo_actual(db: Session) -> dict:
             "total_bajadas":      0,
             "estado":             "SIN_VIAJE",
         }
-
+    # uso de diccionario guia 5
     return {
         "bus_id":             bus.id,
         "placa":              bus.placa,
@@ -153,6 +160,7 @@ def obtener_historial(db: Session, limit: int = 50) -> list:
     bus   = obtener_o_crear_bus(db, ruta)
     viaje = obtener_viaje_activo(db, bus.id)
 
+    #guía 3
     if not viaje:
         return []
 
@@ -163,6 +171,7 @@ def obtener_historial(db: Session, limit: int = 50) -> list:
         .limit(limit)
         .all()
     )
+    # uso de arrays guía 6
     return [
         {
             "id":        c.id,
