@@ -96,7 +96,7 @@ def registrar_evento(db: Session, evento: str, personas_actual: int, confianza: 
     bus   = obtener_o_crear_bus(db, ruta)
     viaje = obtener_viaje_activo(db, bus.id)
 
-    if not viaje:
+    if not viaje:  ##Guía 3
         viaje = iniciar_viaje(db, bus, ruta)
 
     tipo = "SUBIDA" if evento == "subio" else "BAJADA"
