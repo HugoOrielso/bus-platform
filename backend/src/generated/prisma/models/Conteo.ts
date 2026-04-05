@@ -199,7 +199,7 @@ export type ConteoGroupByOutputType = {
   _max: ConteoMaxAggregateOutputType | null
 }
 
-type GetConteoGroupByPayload<T extends ConteoGroupByArgs> = Prisma.PrismaPromise<
+export type GetConteoGroupByPayload<T extends ConteoGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<ConteoGroupByOutputType, T['by']> &
       {

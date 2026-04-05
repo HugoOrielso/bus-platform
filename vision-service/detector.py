@@ -1,8 +1,10 @@
 """
 detector.py — Deteccion de personas con OpenCV + ventana visual
 """
+import numpy as np
 import cv2
 import imutils
+from imutils.object_detection import non_max_suppression
 import threading
 import time
 import os
@@ -42,30 +44,44 @@ class DetectorPersonas:
             self.cap.release()
         print("Detector detenido")
 
+    # ✅ FUNCIÓN REEMPLAZADA
     def _detectar_personas(self, frame):
         frame_small = imutils.resize(frame, width=min(400, frame.shape[1]))
-        frame_gray  = cv2.cvtColor(frame_small, cv2.COLOR_BGR2GRAY)
-        (rects, _)  = self.hog.detectMultiScale(
+
+        frame_gray = cv2.cvtColor(frame_small, cv2.COLOR_BGR2GRAY)
+        frame_gray = cv2.equalizeHist(frame_gray)
+
+        (rects, weights) = self.hog.detectMultiScale(
             frame_gray,
-            winStride=(4, 4),
-            padding=(8, 8),
-            scale=1.03,
-            hitThreshold=0,
+            winStride=(6, 6),
+            padding=(12, 12),
+            scale=1.05,
+            hitThreshold=0.3,
         )
+
+        if len(rects) == 0:
+            return 0, []
+
+        rects_filtrados = [
+            r for r, w in zip(rects, weights) if w > 0.3
+        ]
+
+        rects_np = non_max_suppression(
+            np.array([[x, y, x + w, y + h] for (x, y, w, h) in rects_filtrados]),
+            probs=None,
+            overlapThresh=0.65
+        )
+
         scale = frame.shape[1] / frame_small.shape[1]
-        rects_scaled = []
-        #guía 2 y guía 4 (ints)
-        for (x, y, w, h) in rects:
-            rects_scaled.append((
-                int(x * scale),
-                int(y * scale),
-                int(w * scale),
-                int(h * scale),
-            ))
+        rects_scaled = [
+            (int(x1 * scale), int(y1 * scale),
+             int((x2 - x1) * scale), int((y2 - y1) * scale))
+            for (x1, y1, x2, y2) in rects_np
+        ]
+
         return len(rects_scaled), rects_scaled
 
     def _dibujar_frame(self, frame):
-        #guía 2
         for (x, y, w, h) in self._rects:
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
             cv2.putText(frame, "Persona", (x, y - 8),
@@ -80,17 +96,13 @@ class DetectorPersonas:
         return frame
 
     def _loop(self):
-        #guía 4
         frame_count = 0
-        #guía 2
         while self.corriendo:
             ret, frame = self.cap.read()
-            #guía 3
             if not ret:
                 time.sleep(0.1)
                 continue
             frame_count += 1
-            #guía 3
             if frame_count % DETECTION_INTERVAL == 0:
                 cantidad, rects = self._detectar_personas(frame)
                 self._rects = rects

@@ -213,7 +213,7 @@ export type BusGroupByOutputType = {
   _max: BusMaxAggregateOutputType | null
 }
 
-type GetBusGroupByPayload<T extends BusGroupByArgs> = Prisma.PrismaPromise<
+export type GetBusGroupByPayload<T extends BusGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<BusGroupByOutputType, T['by']> &
       {

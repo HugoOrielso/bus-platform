@@ -235,7 +235,7 @@ export type ViajeGroupByOutputType = {
   _max: ViajeMaxAggregateOutputType | null
 }
 
-type GetViajeGroupByPayload<T extends ViajeGroupByArgs> = Prisma.PrismaPromise<
+export type GetViajeGroupByPayload<T extends ViajeGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<ViajeGroupByOutputType, T['by']> &
       {
