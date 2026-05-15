@@ -4,7 +4,7 @@ database.py — Mapea las tablas de Prisma en bus_platform.
 Guías implementadas:
   - Guía 3: Estructuras de Control (validación de URL de conexión)
   - Guía 4: Input/Output (variables de entorno como parámetros de configuración)
-  - Guía 5: Diccionarios (estructura de modelos ORM como objetos clave:valor)
+  g - Guía 5: Diccionarios (estructura de modelos ORM como objetos clave:valor)
   - Guía 6: Arrays (relaciones one-to-many son equivalentes a vectores de objetos)
 """
 
